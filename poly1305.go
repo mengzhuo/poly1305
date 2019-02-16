@@ -19,15 +19,15 @@ func Sum(out *[16]byte, m []byte, key *[32]byte) {
 	sumGeneric(out, m, key)
 }
 
-func toLittleEndian(b []byte) {
+func changeEndian(b []byte) {
 	for i := 0; i < len(b)/2; i++ {
 		b[i], b[len(b)-i-1] = b[len(b)-i-1], b[i]
 	}
 }
 func numToLeBytes(b *big.Int, out *[TagSize]byte) {
 	bl := len(b.Bytes())
+	copy(out[:], make([]byte, 16))
 	if bl == 0 {
-		copy(out[:], make([]byte, 16))
 		return
 	}
 	offset := 0
@@ -36,16 +36,16 @@ func numToLeBytes(b *big.Int, out *[TagSize]byte) {
 		bl = TagSize
 	}
 	copy(out[TagSize-bl:], b.Bytes()[offset:])
-	toLittleEndian(out[:])
+	changeEndian(out[:])
 }
 
 func sumGeneric(out *[TagSize]byte, msg []byte, key *[32]byte) {
 	h := new(big.Int)
-	toLittleEndian(key[:TagSize])
+	changeEndian(key[:TagSize])
 	rpart := new(big.Int).SetBytes(key[:TagSize])
 	rpart.And(rpart, rAnd)
 
-	toLittleEndian(key[TagSize:])
+	changeEndian(key[TagSize:])
 	spart := new(big.Int).SetBytes(key[TagSize:])
 	var buf [TagSize + 1]byte
 	mi := new(big.Int)
@@ -54,7 +54,7 @@ func sumGeneric(out *[TagSize]byte, msg []byte, key *[32]byte) {
 		buf = [TagSize + 1]byte{}
 		copy(buf[:], msg[:TagSize])
 		buf[16] = 0x1
-		toLittleEndian(buf[:])
+		changeEndian(buf[:])
 		mi.SetBytes(buf[:])
 		h.Add(h, mi)
 		h.Mul(h, rpart)
@@ -66,7 +66,7 @@ func sumGeneric(out *[TagSize]byte, msg []byte, key *[32]byte) {
 		buf = [TagSize + 1]byte{}
 		off := copy(buf[:], msg)
 		buf[off] = 0x01
-		toLittleEndian(buf[:])
+		changeEndian(buf[:])
 		mi.SetBytes(buf[:])
 		h.Add(h, mi)
 		h.Mul(h, rpart)

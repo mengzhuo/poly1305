@@ -7,6 +7,12 @@ package poly1305
 var testData = [...]test{
 	// edge cases
 	{
+		// see https://go-review.googlesource.com/#/c/30101/
+		key: "3b3a29e93b213a5c5c3b3b053a3a8c0d00000000000000000000000000000000",
+		tag: "6dc18b8c344cd79927118bbe84b7f314",
+		in:  "81d8b2e46a25213b58fee4213a2a28e921c12a9632516d3b73272727becf2129",
+	},
+	{
 		key: "0100000000000000000000000000000000000000000000000000000000000000",
 		tag: "04000000000000000000000000000000", // (2¹³⁰-1) % (2¹³⁰-5)
 		in: "ffffffffffffffffffffffffffffffff" +
